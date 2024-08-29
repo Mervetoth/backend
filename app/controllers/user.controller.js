@@ -1,20 +1,31 @@
 const User = require("../models/user.model");
+
+// Public content access
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
 };
+
+// User-specific content access
 exports.userBoard = (req, res) => {
   res.status(200).send("User Content.");
 };
+
+// Admin-specific content access
 exports.adminBoard = (req, res) => {
   res.status(200).send("Admin Content.");
 };
+
+// Moderator-specific content access
 exports.moderatorBoard = (req, res) => {
   res.status(200).send("Moderator Content.");
 };
+
+// Update user information
 exports.updateUserInfo = async (req, res) => {
   try {
-    const userId = req.userId; // Assuming `userId` is added to the request object by the `verifyToken` middleware
+    const userId = req.userId; // `userId` should be added to the request object by the `verifyToken` middleware
 
+    // Construct updated data, excluding undefined fields
     const updatedData = {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
@@ -25,14 +36,13 @@ exports.updateUserInfo = async (req, res) => {
       profileImageUrl: req.body.profileImageUrl,
     };
 
-    // Remove undefined fields from the update
     Object.keys(updatedData).forEach((key) => {
       if (updatedData[key] === undefined) {
         delete updatedData[key];
       }
     });
 
-    // Find the user and update their information
+    // Update user information
     const user = await User.findByIdAndUpdate(userId, updatedData, {
       new: true,
     });
