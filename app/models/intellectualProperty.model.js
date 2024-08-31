@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 
 const IntellectualPropertySchema = new mongoose.Schema({
-  title: String,
-  description: String,
-  status: String,
-  documentUrl: String,
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  status: { type: String, required: true },
+  documentUrl: { type: String },
+  createdAt: { type: Date, default: Date.now },
 });
 
 const IntellectualProperty = mongoose.model(

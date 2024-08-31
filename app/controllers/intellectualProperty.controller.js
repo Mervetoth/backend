@@ -81,10 +81,14 @@ exports.updateIntellectualProperty = async (req, res) => {
   }
 };
 
-// Delete an intellectual property by ID
 exports.deleteIntellectualProperty = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Check if ID is a valid MongoDB ObjectId
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
 
     const deletedProperty = await IntellectualProperty.findByIdAndDelete(id);
 
@@ -94,8 +98,9 @@ exports.deleteIntellectualProperty = async (req, res) => {
         .json({ message: "Intellectual Property not found" });
     }
 
-    res.json({ message: "Intellectual Property deleted successfully" });
+    res.json({ message: "Intellectual Property deleted" });
   } catch (err) {
+    console.error("Error deleting intellectual property:", err);
     res.status(500).json({ message: err.message });
   }
 };
