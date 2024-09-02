@@ -35,15 +35,41 @@ exports.getIntellectualPropertyById = async (req, res) => {
   }
 };
 
-// Create a new intellectual property
 exports.createIntellectualProperty = async (req, res) => {
   try {
-    const { title, description, status, documentUrl } = req.body;
-    const newProperty = new IntellectualProperty({
+    const {
+      creator,
+      owner,
       title,
-      description,
-      status,
-      documentUrl,
+      keywords,
+      abstract,
+      classification,
+      blockchainHash,
+      visibility,
+    } = req.body;
+
+    // Validate required fields
+    if (
+      !creator ||
+      !owner ||
+      !title ||
+      !keywords ||
+      !abstract ||
+      !classification ||
+      !blockchainHash
+    ) {
+      return res.status(400).json({ message: "Required fields are missing!" });
+    }
+
+    const newProperty = new IntellectualProperty({
+      creator,
+      owner,
+      title,
+      keywords,
+      abstract,
+      classification,
+      blockchainHash, // Hash of IP details stored on blockchain
+      visibility,
     });
 
     const result = await newProperty.save();

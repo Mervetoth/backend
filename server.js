@@ -49,7 +49,7 @@ async function initial() {
   }
 }
 
-// simple route
+// test route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to merviii application." });
 });
@@ -60,6 +60,8 @@ app.use(
   "/api/intellectualProperties",
   require("./app/routes/intellectualProperty.routes")
 );
+app.use("/api/patentConsumer", require("./app/routes/patentConsumer.routes"));
+app.use("/api/patentCreator", require("./app/routes/patentCreator.routes"));
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
