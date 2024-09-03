@@ -1,11 +1,13 @@
+//**verifySignUp.js
 const db = require("../models");
 const ROLES = db.ROLES;
 const User = db.user;
 
 const checkDuplicateEmail = async (req, res, next) => {
   try {
-    // Check Email
-    user = await User.findOne({ email: req.body.email }).exec();
+    const email = req.body.email.toLowerCase(); // Convert email to lowercase
+    const user = await User.findOne({ email }).exec();
+
     if (user) {
       return res
         .status(400)
@@ -14,7 +16,8 @@ const checkDuplicateEmail = async (req, res, next) => {
 
     next();
   } catch (err) {
-    res.status(500).send({ message: err });
+    console.error("Error checking duplicate email:", err);
+    res.status(500).send({ message: "Server error!" });
   }
 };
 

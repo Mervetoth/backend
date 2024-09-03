@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const User = require("./user.model"); // Base User model
 
 // Define the Patent Consumer Schema extending from User
-const consumerSchema = new mongoose.Schema({
+const patentConsumerSchema = new mongoose.Schema({
   verified: { type: Boolean, default: false },
   requests: [
     {
@@ -15,6 +15,9 @@ const consumerSchema = new mongoose.Schema({
 });
 
 // Create the PatentConsumer model using discriminator
-const PatentConsumer = User.discriminator("PatentConsumer", consumerSchema);
+const PatentConsumer = User.discriminator(
+  "PatentConsumer",
+  patentConsumerSchema
+);
 
 module.exports = PatentConsumer;

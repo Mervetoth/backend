@@ -3,10 +3,11 @@ const db = require("../models");
 const User = db.user;
 const Role = db.role;
 const RefreshToken = db.refreshToken;
+const PatentConsumer = require("../models/patentConsumer.model");
+const PatentCreator = require("../models/patentCreator.model");
 
+const bcrypt = require("bcryptjs"); // Make sure you use bcryptjs for consistency with hashing
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-
 exports.signup = async (req, res) => {
   try {
     const {
@@ -18,10 +19,10 @@ exports.signup = async (req, res) => {
       phoneNumber,
       roles,
       userType,
-      name, // Added
-      address, // Added
-      dateOfBirth, // Added
-      designation, // Added
+      name,
+      address,
+      dateOfBirth,
+      designation,
     } = req.body;
 
     if (
@@ -31,11 +32,12 @@ exports.signup = async (req, res) => {
       !password ||
       !gender ||
       !phoneNumber ||
+      !roles ||
       !userType ||
-      !name || // Check
-      !address || // Check
-      !dateOfBirth || // Check
-      !designation // Check
+      !name ||
+      !address ||
+      !dateOfBirth ||
+      !designation
     ) {
       return res.status(400).send({ message: "Required fields are missing!" });
     }
@@ -44,37 +46,42 @@ exports.signup = async (req, res) => {
       return res.status(400).send({ message: "Roles must be an array!" });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).send({ message: "User already exists!" });
     }
-
+    const hashedPassword = bcrypt.hashSync(password, 8);
+    console.log("Hashed Password:", hashedPassword);
     let user;
     if (userType === "PatentCreator") {
       user = new PatentCreator({
         firstName,
         lastName,
-        email,
-        password: bcrypt.hashSync(password, 8),
+        email: email.toLowerCase(),
+        password: hashedPassword,
         gender,
         phoneNumber,
-        name, // Added
-        address, // Added
-        dateOfBirth, // Added
-        designation, // Added
+        name,
+        address,
+        dateOfBirth,
+        roles,
+        userType,
+        designation,
       });
     } else if (userType === "PatentConsumer") {
       user = new PatentConsumer({
         firstName,
         lastName,
-        email,
-        password: bcrypt.hashSync(password, 8),
+        email: email.toLowerCase(),
+        password: hashedPassword,
         gender,
         phoneNumber,
-        name, // Added
-        address, // Added
-        dateOfBirth, // Added
-        designation, // Added
+        name,
+        address,
+        dateOfBirth,
+        userType,
+        designation,
+        roles,
       });
     } else {
       return res.status(400).send({ message: "Invalid user type!" });
@@ -94,6 +101,7 @@ exports.signup = async (req, res) => {
     await user.save();
     res.status(201).send({ message: "User registered successfully!" });
   } catch (err) {
+    console.error(err); // Debugging info
     res.status(500).send({ message: `Server error: ${err.message}` });
   }
 };
@@ -109,19 +117,30 @@ exports.signin = async (req, res) => {
     }
 
     // Check if user exists
-    const user = await User.findOne({ email }).populate("roles", "-__v");
+    const user = await User.findOne({ email: email.toLowerCase() }).populate(
+      "roles",
+      "-__v"
+    );
+    console.log("user : ", user);
+
     if (!user) {
       return res.status(404).send({ message: "User not found." });
     }
+    console.log("user pass : ", user.password);
 
     // Validate password
-    const passwordIsValid = bcrypt.compareSync(password, user.password);
+    const passwordIsValid = bcrypt.compareSync(
+      req.body.password,
+      user.password
+    );
+
     if (!passwordIsValid) {
       return res
         .status(401)
         .send({ accessToken: null, message: "Invalid Password!" });
     }
-
+    console.log("ccccccccc", req.body.password);
+    console.log("22222222", user.password);
     // Generate tokens
     let token = jwt.sign({ id: user.id }, config.secret, {
       expiresIn: config.jwtExpiration,
@@ -143,6 +162,11 @@ exports.signin = async (req, res) => {
       refreshToken: refreshToken,
       phoneNumber: user.phoneNumber,
       gender: user.gender,
+
+      address: user.address,
+      dateOfBirth: user.dateOfBirth,
+      userType: user.userType,
+      designation: user.designation,
     });
   } catch (err) {
     res.status(500).send({ message: `Server error: ${err.message}` });

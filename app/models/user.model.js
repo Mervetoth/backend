@@ -8,10 +8,25 @@ const userSchema = new Schema(
     phoneNumber: { type: String, required: true },
     dateOfBirth: { type: Date, required: true },
     designation: { type: String, required: true },
+    password: {
+      type: String,
+      required: true, // Ensure password is required
+    },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    roles: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Role",
+      },
+    ],
   },
   {
     timestamps: true,
-    discriminatorKey: "userType", // Ensures proper use of discriminators
+    discriminatorKey: "userType",
   }
 );
 
