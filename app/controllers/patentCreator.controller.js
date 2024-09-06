@@ -7,7 +7,8 @@ exports.signupPatentCreator = async (req, res) => {
   try {
     // Hash password, validate input, etc.
     const patentCreator = new PatentCreator({
-      name: req.body.name,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
       address: req.body.address,
       phoneNumber: req.body.phoneNumber,
       dateOfBirth: req.body.dateOfBirth,

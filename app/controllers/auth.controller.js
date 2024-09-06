@@ -19,7 +19,7 @@ exports.signup = async (req, res) => {
       phoneNumber,
       roles,
       userType,
-      name,
+
       address,
       dateOfBirth,
       designation,
@@ -34,7 +34,6 @@ exports.signup = async (req, res) => {
       !phoneNumber ||
       !roles ||
       !userType ||
-      !name ||
       !address ||
       !dateOfBirth ||
       !designation
@@ -61,7 +60,7 @@ exports.signup = async (req, res) => {
         password: hashedPassword,
         gender,
         phoneNumber,
-        name,
+
         address,
         dateOfBirth,
         roles,
@@ -76,7 +75,7 @@ exports.signup = async (req, res) => {
         password: hashedPassword,
         gender,
         phoneNumber,
-        name,
+
         address,
         dateOfBirth,
         userType,
