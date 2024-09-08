@@ -34,7 +34,6 @@ exports.getIntellectualPropertyById = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 exports.createIntellectualProperty = async (req, res) => {
   try {
     const {
@@ -42,33 +41,44 @@ exports.createIntellectualProperty = async (req, res) => {
       owner,
       title,
       keywords,
-      abstract,
+      description, // Changed from 'abstract' to 'description'
       classification,
       blockchainHash,
       visibility,
     } = req.body;
 
-    // Validate required fields
-    if (
-      !creator ||
-      !owner ||
-      !title ||
-      !keywords ||
-      !abstract ||
-      !classification ||
-      !blockchainHash
-    ) {
-      return res.status(400).json({ message: "Required fields are missing!" });
+    // Validate each required field and return specific error message
+    if (!creator) {
+      return res.status(400).json({ message: "Creator is required!" });
+    }
+    if (!owner) {
+      return res.status(400).json({ message: "Owner is required!" });
+    }
+    if (!title) {
+      return res.status(400).json({ message: "Title is required!" });
+    }
+    if (!keywords || keywords.length === 0) {
+      return res.status(400).json({ message: "Keywords are required!" });
+    }
+    if (!description) {
+      return res.status(400).json({ message: "Description is required!" });
+    }
+    if (!classification) {
+      return res.status(400).json({ message: "Classification is required!" });
+    }
+    if (!blockchainHash) {
+      return res.status(400).json({ message: "Blockchain hash is required!" });
     }
 
+    // Create new intellectual property if all fields are valid
     const newProperty = new IntellectualProperty({
       creator,
       owner,
       title,
       keywords,
-      abstract,
+      description,
       classification,
-      blockchainHash, // Hash of IP details stored on blockchain
+      blockchainHash,
       visibility,
     });
 

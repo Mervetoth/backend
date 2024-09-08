@@ -19,38 +19,62 @@ exports.signup = async (req, res) => {
       phoneNumber,
       roles,
       userType,
-
       address,
       dateOfBirth,
       designation,
     } = req.body;
 
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !password ||
-      !gender ||
-      !phoneNumber ||
-      !roles ||
-      !userType ||
-      !address ||
-      !dateOfBirth ||
-      !designation
-    ) {
-      return res.status(400).send({ message: "Required fields are missing!" });
+    // Validate each field and return specific error message
+    if (!firstName) {
+      return res.status(400).send({ message: "First name is required!" });
+    }
+    if (!lastName) {
+      return res.status(400).send({ message: "Last name is required!" });
+    }
+    if (!email) {
+      return res.status(400).send({ message: "Email is required!" });
+    }
+    if (!password) {
+      return res.status(400).send({ message: "Password is required!" });
+    }
+    if (!gender) {
+      return res.status(400).send({ message: "Gender is required!" });
+    }
+    if (!phoneNumber) {
+      return res.status(400).send({ message: "Phone number is required!" });
+    }
+    if (!roles) {
+      return res.status(400).send({ message: "Roles are required!" });
+    }
+    if (!userType) {
+      return res.status(400).send({ message: "User type is required!" });
+    }
+    if (!address) {
+      return res.status(400).send({ message: "Address is required!" });
+    }
+    if (!dateOfBirth) {
+      return res.status(400).send({ message: "Date of birth is required!" });
+    }
+    if (!designation) {
+      return res.status(400).send({ message: "Designation is required!" });
     }
 
+    // Ensure roles is an array
     if (roles && !Array.isArray(roles)) {
       return res.status(400).send({ message: "Roles must be an array!" });
     }
 
+    // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).send({ message: "User already exists!" });
     }
+
+    // Hash the password
     const hashedPassword = bcrypt.hashSync(password, 8);
     console.log("Hashed Password:", hashedPassword);
+
+    // Create user based on user type
     let user;
     if (userType === "PatentCreator") {
       user = new PatentCreator({
@@ -60,7 +84,6 @@ exports.signup = async (req, res) => {
         password: hashedPassword,
         gender,
         phoneNumber,
-
         address,
         dateOfBirth,
         roles,
@@ -75,7 +98,6 @@ exports.signup = async (req, res) => {
         password: hashedPassword,
         gender,
         phoneNumber,
-
         address,
         dateOfBirth,
         userType,
@@ -86,6 +108,7 @@ exports.signup = async (req, res) => {
       return res.status(400).send({ message: "Invalid user type!" });
     }
 
+    // Validate roles and check for valid roles in the database
     if (roles && roles.length > 0) {
       const foundRoles = await Role.find({ name: { $in: roles } });
       if (foundRoles.length === 0) {
@@ -97,6 +120,7 @@ exports.signup = async (req, res) => {
       user.roles = [defaultRole._id];
     }
 
+    // Save the new user
     await user.save();
     res.status(201).send({ message: "User registered successfully!" });
   } catch (err) {
